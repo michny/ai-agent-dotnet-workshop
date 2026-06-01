@@ -30,13 +30,15 @@ var embedder = provider.GetRequiredService<IEmbeddingGenerator<string, Embedding
 var convertCurrency = new ConvertCurrencyTool();
 var getTransactions = new GetTransactionsTool();
 var searchTransactions = new SearchTransactionsTool(embedder);
+var importStatement = new ImportStatementTool();
 var chatOptions = new ChatOptions
 {
     Tools = [
         AIFunctionFactory.Create(convertCurrency.Convert),
         AIFunctionFactory.Create(convertCurrency.GetSupportedCurrencies),
         AIFunctionFactory.Create(getTransactions.GetTransactions),
-        AIFunctionFactory.Create(searchTransactions.SearchTransactions)
+        AIFunctionFactory.Create(searchTransactions.SearchTransactions),
+        AIFunctionFactory.Create(importStatement.ImportTransactionsFromCsv)
     ],
 };
 
