@@ -158,7 +158,7 @@ Replace placeholders with the values you copied in Step 4:
 ```bash
 dotnet user-secrets set "AzureOpenAI:Endpoint"   "https://your-resource.openai.azure.com/"
 dotnet user-secrets set "AzureOpenAI:ApiKey"     "<KEY 1 you copied>"
-dotnet user-secrets set "AzureOpenAI:Deployment" "gpt-4.1-mini"
+dotnet user-secreet "AzureOpenAI:Deployment" "gpt-4.1-mini"
 ```
 
 `dotnet user-secrets` writes to a JSON file in your user profile. It's never in the repo. It can't be committed by accident.
