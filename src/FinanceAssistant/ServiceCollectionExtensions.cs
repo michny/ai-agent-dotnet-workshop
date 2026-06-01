@@ -25,6 +25,9 @@ public static class ServiceCollectionExtensions
                     new ApiKeyCredential(apiKey),
                     new OpenAIClientOptions { Endpoint = apiBase })
                 .GetChatClient(deployment)
-                .AsIChatClient());
+                .AsIChatClient()
+                .AsBuilder()
+                .UseFunctionInvocation() // Enable function (tools) calling support
+                .Build());
     }
 }
