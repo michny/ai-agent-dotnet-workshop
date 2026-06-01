@@ -26,8 +26,8 @@ var convertCurrency = new ConvertCurrencyTool();
 var chatOptions = new ChatOptions
 {
     Tools = [
-        AIFunctionFactory.Create(convertCurrency.Convert, "convert_currency"),
-        AIFunctionFactory.Create(convertCurrency.GetSupportedCurrencies, "get_supported_currencies")
+        AIFunctionFactory.Create(convertCurrency.Convert),
+        AIFunctionFactory.Create(convertCurrency.GetSupportedCurrencies)
     ],
 };
 
