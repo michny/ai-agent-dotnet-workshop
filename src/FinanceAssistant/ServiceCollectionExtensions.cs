@@ -26,10 +26,7 @@ public static class ServiceCollectionExtensions
                     new ApiKeyCredential(apiKey),
                     new OpenAIClientOptions { Endpoint = apiBase })
                 .GetChatClient(deployment)
-                .AsIChatClient()
-                .AsBuilder()
-                .UseFunctionInvocation() // Enable function (tools) calling support
-                .Build());
+                .AsIChatClient());
     }
 
     public static IServiceCollection AddEmbeddingGenerator(this IServiceCollection services, IConfiguration config)

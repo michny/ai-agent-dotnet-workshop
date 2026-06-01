@@ -40,6 +40,8 @@ var chatOptions = new ChatOptions
     ],
 };
 
+var chatAgent = new ChatAgent(chatClient, chatOptions);
+
 await using (var db = new FinanceDbContext())
 {
     var unembedded = await db.Transactions
@@ -80,8 +82,8 @@ while (true)
         new(ChatRole.User, input)
     };
 
-    var response = await chatClient.GetResponseAsync(messages, chatOptions);
-    Console.WriteLine(response.Text);
+    var reply = await chatAgent.RunTurnAsync(messages);
+    Console.WriteLine(reply);
 }
 
 return 0;
