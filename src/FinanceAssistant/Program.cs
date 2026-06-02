@@ -35,6 +35,7 @@ var getTransactions = new GetTransactionsTool();
 var searchTransactions = new SearchTransactionsTool(embedder);
 var importStatement = new ImportStatementTool();
 var clearConversation = new ClearConversationTool(conversationStore);
+var transferFunds = new TransferFundsTool();
 var chatOptions = new ChatOptions
 {
     Tools = [
@@ -43,7 +44,8 @@ var chatOptions = new ChatOptions
         AIFunctionFactory.Create(getTransactions.GetTransactions),
         AIFunctionFactory.Create(searchTransactions.SearchTransactions),
         AIFunctionFactory.Create(importStatement.ImportTransactionsFromCsv),
-        AIFunctionFactory.Create(clearConversation.ClearConversation)
+        AIFunctionFactory.Create(clearConversation.ClearConversation),
+        new ApprovalRequiredAIFunction(AIFunctionFactory.Create(transferFunds.Transfer))
     ],
 };
 
