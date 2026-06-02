@@ -1,22 +1,23 @@
+using FinanceAssistant.Memory;
 using Microsoft.Extensions.AI;
 
 namespace FinanceAssistant;
 
-public class ChatAgent(IChatClient chatClient, ChatOptions options, int maxIterations = 8)
+public class ChatAgent(IChatClient chatClient, ChatOptions options, ConversationStore conversationStore, int maxIterations = 8)
 {
-
-    public async Task<string> RunTurnAsync(IList<ChatMessage> messages, CancellationToken ct = default)
+    public async Task<string> RunTurnAsync(string userInput, CancellationToken ct = default)
     {
+        conversationStore.AppendUserMessage(userInput);
         for (var iteration = 1; iteration <= maxIterations; iteration++)
         {
-            var response = await chatClient.GetResponseAsync(messages, options, ct);
+            var response = await chatClient.GetResponseAsync(conversationStore.GetMessages(), options, ct);
 
             // The response carries the assistant's reply (which may include tool-call requests).
             // Append it to history so the tool-result messages we add below pair correctly with
             // the model's call requests on the next GetResponseAsync.
             foreach (var responseMessage in response.Messages)
             {
-                messages.Add(responseMessage);
+                conversationStore.AppendResponseMessages([responseMessage]);
             }
 
             // The model is done if it didn't ask for tool calls.
@@ -61,14 +62,14 @@ public class ChatAgent(IChatClient chatClient, ChatOptions options, int maxItera
                     }
                 }
 
-                messages.Add(new ChatMessage(ChatRole.Tool, [resultContent]));
+                conversationStore.AppendToolMessage(resultContent);
             }
         }
 
         // Hit the iteration cap. The model is probably stuck in a tool-call loop.
         // Return whatever the last assistant text was, or a fallback message.
         Console.Error.WriteLine($"[agent] iteration cap of {maxIterations} hit. The agent looped on tool calls without producing a final answer.");
-        var lastAssistantText = messages
+        var lastAssistantText = conversationStore.GetMessages()
             .Where(m => m.Role == ChatRole.Assistant)
             .Select(m => m.Text)
             .LastOrDefault(t => !string.IsNullOrWhiteSpace(t));
