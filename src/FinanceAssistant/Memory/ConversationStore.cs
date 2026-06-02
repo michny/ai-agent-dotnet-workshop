@@ -46,5 +46,27 @@ public class ConversationStore
         return true;
     }
 
+    public void Compact(string summary, int keepTailCount)
+    {
+        if (_messages.Count == 0)
+        {
+            return;
+        }
+
+        var systemMessage = _messages[0];
+        var tail = _messages
+            .Skip(Math.Max(1, _messages.Count - keepTailCount))
+            .ToList();
+
+        var summaryMessage = new ChatMessage(
+            ChatRole.System,
+            $"Conversation summary so far: {summary}");
+
+        _messages.Clear();
+        _messages.Add(systemMessage);
+        _messages.Add(summaryMessage);
+        _messages.AddRange(tail);
+    }
+
     public IReadOnlyList<ChatMessage> GetMessages() => _messages;
 }

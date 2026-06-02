@@ -3,11 +3,17 @@ using Microsoft.Extensions.AI;
 
 namespace FinanceAssistant;
 
-public class ChatAgent(IChatClient chatClient, ChatOptions options, ConversationStore conversationStore, int maxIterations = 8)
+public class ChatAgent(IChatClient chatClient, ChatOptions options, ConversationStore conversationStore, SummarizingHistoryReducer? reducer = null, int maxIterations = 8)
 {
     public async Task<string> RunTurnAsync(string userInput, CancellationToken ct = default)
     {
         conversationStore.AppendUserMessage(userInput);
+
+        if (reducer is not null)
+        {
+            await reducer.TryReduceAsync(conversationStore, ct);
+        }
+
         for (var iteration = 1; iteration <= maxIterations; iteration++)
         {
             var response = await chatClient.GetResponseAsync(conversationStore.GetMessages(), options, ct);

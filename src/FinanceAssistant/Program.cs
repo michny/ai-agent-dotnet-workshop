@@ -27,6 +27,7 @@ var provider = services.BuildServiceProvider();
 var chatClient = provider.GetRequiredService<IChatClient>();
 var embedder = provider.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
 var conversationStore = new ConversationStore();
+var summarizingHistoryReducer = new SummarizingHistoryReducer(chatClient);
 
 // Bootstraps the tool. In a real system, tools would typically be registered in DI and injected where needed.
 var convertCurrency = new ConvertCurrencyTool();
@@ -49,7 +50,7 @@ var chatOptions = new ChatOptions
 var systemPrompt = await File.ReadAllTextAsync(
     Path.Combine(AppContext.BaseDirectory, "Prompts", "SystemPrompt.md"));
 conversationStore.AppendSystemMessage(systemPrompt);
-var chatAgent = new ChatAgent(chatClient, chatOptions, conversationStore);
+var chatAgent = new ChatAgent(chatClient, chatOptions, conversationStore, summarizingHistoryReducer);
 
 await using (var db = new FinanceDbContext())
 {
@@ -82,6 +83,7 @@ while (true)
         break;
     }
 
+    Console.WriteLine($"[memory] {conversationStore.GetMessages().Count} messages in history");
     var reply = await chatAgent.RunTurnAsync(input);
     Console.WriteLine(reply);
 }
