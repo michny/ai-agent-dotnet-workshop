@@ -26,12 +26,14 @@ var provider = services.BuildServiceProvider();
 
 var chatClient = provider.GetRequiredService<IChatClient>();
 var embedder = provider.GetRequiredService<IEmbeddingGenerator<string, Embedding<float>>>();
+var conversationStore = new ConversationStore();
 
 // Bootstraps the tool. In a real system, tools would typically be registered in DI and injected where needed.
 var convertCurrency = new ConvertCurrencyTool();
 var getTransactions = new GetTransactionsTool();
 var searchTransactions = new SearchTransactionsTool(embedder);
 var importStatement = new ImportStatementTool();
+var clearConversation = new ClearConversationTool(conversationStore);
 var chatOptions = new ChatOptions
 {
     Tools = [
@@ -39,13 +41,13 @@ var chatOptions = new ChatOptions
         AIFunctionFactory.Create(convertCurrency.GetSupportedCurrencies),
         AIFunctionFactory.Create(getTransactions.GetTransactions),
         AIFunctionFactory.Create(searchTransactions.SearchTransactions),
-        AIFunctionFactory.Create(importStatement.ImportTransactionsFromCsv)
+        AIFunctionFactory.Create(importStatement.ImportTransactionsFromCsv),
+        AIFunctionFactory.Create(clearConversation.ClearConversation)
     ],
 };
 
 var systemPrompt = await File.ReadAllTextAsync(
     Path.Combine(AppContext.BaseDirectory, "Prompts", "SystemPrompt.md"));
-var conversationStore = new ConversationStore();
 conversationStore.AppendSystemMessage(systemPrompt);
 var chatAgent = new ChatAgent(chatClient, chatOptions, conversationStore);
 

@@ -64,6 +64,11 @@ public class ChatAgent(IChatClient chatClient, ChatOptions options, Conversation
 
                 conversationStore.AppendToolMessage(resultContent);
             }
+
+            if (conversationStore.ConsumeWasCleared())
+            {
+                return "Conversation cleared.";
+            }
         }
 
         // Hit the iteration cap. The model is probably stuck in a tool-call loop.

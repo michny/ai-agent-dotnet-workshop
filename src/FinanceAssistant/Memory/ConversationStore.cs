@@ -29,5 +29,22 @@ public class ConversationStore
         _messages.Add(new ChatMessage(ChatRole.Tool, [content]));
     }
 
+    private bool _wasCleared;
+
+    public void ClearConversation()
+    {
+        _messages.RemoveAll(m => m.Role != ChatRole.System);
+        _wasCleared = true;
+    }
+
+    public bool ConsumeWasCleared()
+    {
+        if (!_wasCleared) return false;
+        _wasCleared = false;
+        // Remove any orphaned tool messages added after the clear
+        _messages.RemoveAll(m => m.Role != ChatRole.System);
+        return true;
+    }
+
     public IReadOnlyList<ChatMessage> GetMessages() => _messages;
 }
